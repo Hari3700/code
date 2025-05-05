@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MSME Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #9c27b0;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .welcome-message {
+            position: fixed;
+            bottom: 90px;
+            right: 90px;
+            background-color: #512da8;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 999;
+            display: {% if chat_history %}none{% else %}block{% endif %};
+            font-size: 14px;
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            background-color: #fff;
+            border: 2px solid #9c27b0;
+            border-radius: 12px;
+            display: {% if chat_history %}flex{% else %}none{% endif %};
+            flex-direction: column;
+            z-index: 999;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        .chat-header {
+            background-color: #9c27b0;
+            color: white;
+            padding: 15px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .chat-history {
+            padding: 15px;
+            overflow-y: auto;
+            height: 250px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .chat-form {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        .chat-form input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .chat-form button {
+            padding: 8px 12px;
+            background-color: #9c27b0;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .user {
+            color: #7b1fa2;
+            margin-bottom: 6px;
+        }
+
+        .bot {
+            color: #512da8;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toggle button -->
+    <button class="chatbot-toggle" onclick="toggleChat()">💬</button>
+
+    <!-- Welcome message -->
+    <div class="welcome-message" id="welcomeMessage">Hello, how can I help you?</div>
+
+    <!-- Chat box -->
+    <div class="chat-container" id="chatBox">
+        <div class="chat-header">MSME Chatbot</div>
+        <div class="chat-history" id="chatHistory">
+            {% for message in chat_history %}
+                {% if message.role == 'user' %}
+                    <div class="user"><strong>You:</strong> {{ message.text }}</div>
+                {% elif message.role == 'bot' %}
+                    <div class="bot"><strong>Bot:</strong> {{ message.text|safe }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <form class="chat-form" method="POST" action="/" id="chatForm" onsubmit="return handleSubmit();">
+            <input type="text" name="query" id="queryInput" placeholder="Ask something..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        function scrollToBottom() {
+            const chatHistory = document.getElementById('chatHistory');
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function toggleChat() {
+            const chatBox = document.getElementById('chatBox');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const isVisible = chatBox.style.display === 'flex';
+
+            chatBox.style.display = isVisible ? 'none' : 'flex';
+            welcomeMessage.style.display = isVisible ? 'block' : 'none';
+
+            if (!isVisible) {
+                scrollToBottom();
+            }
+        }
+
+        function handleSubmit() {
+            const chatBox = document.getElementById('chatBox');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+
+            chatBox.style.display = 'flex';
+            welcomeMessage.style.display = 'none';
+
+            setTimeout(scrollToBottom, 100); // Scroll after rendering new message
+
+            return true; // Let the form submit normally
+        }
+
+        // Optional: Auto-scroll if chat is open on load
+        window.onload = function () {
+            scrollToBottom();
+        };
+    </script>
+
+</body>
+</html>
